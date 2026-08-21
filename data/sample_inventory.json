@@ -1,0 +1,140 @@
+{
+  "skus": [
+    {
+      "sku_id": "SKU-104",
+      "name": "Precision Surgical Gloves (Box 100)",
+      "category": "Medical Supplies",
+      "unit_cost": 12.0,
+      "holding_cost_per_day": 0.08,
+      "supplier_lead_time_days": 7,
+      "supplier_unit_price": 12.0,
+      "supplier_shipping_flat": 150.0,
+      "inter_location_transfer_rate": 1.5,
+      "inter_location_handling_flat": 50.0,
+      "inter_location_lead_time_days": 1.5,
+      "stockout_penalty_per_unit": 10.0,
+      "locations": [
+        {
+          "location_id": "LOC-MAA",
+          "city": "Chennai",
+          "current_stock": 15,
+          "safety_stock": 20,
+          "forecast_14d_demand": 80,
+          "in_transit": 0
+        },
+        {
+          "location_id": "LOC-BLR",
+          "city": "Bangalore",
+          "current_stock": 160,
+          "safety_stock": 30,
+          "forecast_14d_demand": 30,
+          "in_transit": 0
+        },
+        {
+          "location_id": "LOC-HYD",
+          "city": "Hyderabad",
+          "current_stock": 45,
+          "safety_stock": 25,
+          "forecast_14d_demand": 40,
+          "in_transit": 0
+        }
+      ]
+    },
+    {
+      "sku_id": "SKU-101",
+      "name": "N95 Medical Respirators",
+      "category": "PPE",
+      "unit_cost": 5.0,
+      "holding_cost_per_day": 0.04,
+      "supplier_lead_time_days": 5,
+      "supplier_unit_price": 5.0,
+      "supplier_shipping_flat": 80.0,
+      "inter_location_transfer_rate": 0.8,
+      "inter_location_handling_flat": 30.0,
+      "inter_location_lead_time_days": 1.0,
+      "stockout_penalty_per_unit": 6.0,
+      "locations": [
+        {
+          "location_id": "LOC-MAA",
+          "city": "Chennai",
+          "current_stock": 450,
+          "safety_stock": 100,
+          "forecast_14d_demand": 120,
+          "in_transit": 0
+        },
+        {
+          "location_id": "LOC-BLR",
+          "city": "Bangalore",
+          "current_stock": 20,
+          "safety_stock": 80,
+          "forecast_14d_demand": 150,
+          "in_transit": 0
+        }
+      ]
+    },
+    {
+      "sku_id": "SKU-102",
+      "name": "Infrared Thermal Scanners",
+      "category": "Diagnostics",
+      "unit_cost": 45.0,
+      "holding_cost_per_day": 0.30,
+      "supplier_lead_time_days": 10,
+      "supplier_unit_price": 45.0,
+      "supplier_shipping_flat": 200.0,
+      "inter_location_transfer_rate": 3.0,
+      "inter_location_handling_flat": 60.0,
+      "inter_location_lead_time_days": 2.0,
+      "stockout_penalty_per_unit": 35.0,
+      "locations": [
+        {
+          "location_id": "LOC-MAA",
+          "city": "Chennai",
+          "current_stock": 60,
+          "safety_stock": 20,
+          "forecast_14d_demand": 45,
+          "in_transit": 0
+        },
+        {
+          "location_id": "LOC-BLR",
+          "city": "Bangalore",
+          "current_stock": 55,
+          "safety_stock": 20,
+          "forecast_14d_demand": 40,
+          "in_transit": 0
+        }
+      ]
+    },
+    {
+      "sku_id": "SKU-103",
+      "name": "Full Body Hazards Protection Suit",
+      "category": "Safety Equipment",
+      "unit_cost": 65.0,
+      "holding_cost_per_day": 0.45,
+      "supplier_lead_time_days": 6,
+      "supplier_unit_price": 60.0,
+      "supplier_shipping_flat": 120.0,
+      "inter_location_transfer_rate": 4.0,
+      "inter_location_handling_flat": 70.0,
+      "inter_location_lead_time_days": 2.0,
+      "stockout_penalty_per_unit": 50.0,
+      "locations": [
+        {
+          "location_id": "LOC-MAA",
+          "city": "Chennai",
+          "current_stock": 5,
+          "safety_stock": 30,
+          "forecast_14d_demand": 80,
+          "in_transit": 0
+        },
+        {
+          "location_id": "LOC-BLR",
+          "city": "Bangalore",
+          "current_stock": 8,
+          "safety_stock": 25,
+          "forecast_14d_demand": 60,
+          "in_transit": 0
+        }
+      ]
+    }
+  ]
+}
