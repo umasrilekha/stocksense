@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function RecommendationCard({ recommendation, onApproveClick }) {
+export default function RecommendationCard({ recommendation, onApproveClick, onCreateTransferClick }) {
   if (!recommendation) return null;
 
   const {
@@ -45,17 +45,26 @@ export default function RecommendationCard({ recommendation, onApproveClick }) {
           <p className="text-sm text-slate-400">Decision Intelligence Engine Evaluation</p>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className={`px-5 py-2.5 rounded-xl border bg-gradient-to-br ${badgeBg} shadow-lg flex items-center gap-3`}>
-            <span className="text-xs uppercase font-extrabold tracking-wider text-slate-300">Recommended Action:</span>
-            <span className="text-2xl font-black tracking-tight">{recommended_action}</span>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className={`px-4 py-2 rounded-xl border bg-gradient-to-br ${badgeBg} shadow-lg flex items-center gap-2`}>
+            <span className="text-xs uppercase font-extrabold tracking-wider text-slate-300">Action:</span>
+            <span className="text-xl font-black tracking-tight">{recommended_action}</span>
           </div>
+
+          {recommended_action === 'MOVE' && (
+            <button
+              onClick={onCreateTransferClick}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs px-4 py-3 rounded-xl transition shadow-lg shadow-indigo-600/20 hover:scale-[1.02] flex items-center gap-1.5"
+            >
+              <span>🚚 Create Transfer & Logistics &rarr;</span>
+            </button>
+          )}
 
           <button
             onClick={onApproveClick}
-            className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm px-5 py-3 rounded-xl transition shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98]"
+            className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs px-4 py-3 rounded-xl transition shadow-lg shadow-emerald-500/20 hover:scale-[1.02]"
           >
-            Approve {recommended_action} Action &rarr;
+            Approve {recommended_action} ✓
           </button>
         </div>
       </div>

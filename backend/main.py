@@ -1,15 +1,16 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 from data_loader import get_all_skus, get_sku_data
 from decision_engine import evaluate_inventory_decision
+import logistics_engine
 
 app = FastAPI(
     title="StockSense API",
-    description="Inventory Decision Intelligence MVP API",
-    version="1.0.0"
+    description="Inventory Decision Intelligence & Logistics Coordination MVP API",
+    version="1.1.0"
 )
 
 # Configure CORS
@@ -21,6 +22,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Pydantic Schemas
 class SimulationRequest(BaseModel):
     sku_id: str
     source_available_stock: Optional[int] = None
@@ -35,6 +37,22 @@ class ApprovalRequest(BaseModel):
     approved_by: str = "Demo User"
     notes: Optional[str] = None
 
+class CreateTransferRequest(BaseModel):
+    sku: str
+    product: Optional[str] = None
+    source: str
+    destination: str
+    quantity: int
+    priority: Optional[str] = "HIGH"
+    required_days: Optional[int] = 3
+
+class UpdateStatusRequest(BaseModel):
+    status: str
+    note: Optional[str] = None
+
+class NotifyRequest(BaseModel):
+    message: str
+
 # Store approvals in memory
 approvals_db = []
 
@@ -42,9 +60,10 @@ approvals_db = []
 def read_root():
     return {
         "status": "online",
-        "app": "StockSense MVP Backend",
-        "version": "1.0.0",
-        "message": "Inventory Decision Intelligence API is running"
+        "app": "StockSense Backend",
+        "version": "1.1.0",
+        "modules": ["Demand & Decision Engine", "Logistics Coordination"],
+        "message": "Inventory Decision & Execution API is running"
     }
 
 @app.get("/api/inventory")
@@ -100,6 +119,58 @@ def approve_action(req: ApprovalRequest):
         "status": "success",
         "message": f"Action '{req.action}' approved for {req.sku_id}",
         "approval": record
+    }
+
+# =========================================================
+# PERSON 3 - LOGISTICS COORDINATION ENDPOINTS
+# =========================================================
+
+@app.post("/api/logistics/transfers")
+def create_logistics_transfer(req: CreateTransferRequest):
+    transfer = logistics_engine.create_transfer_request(req.dict())
+    return {
+        "status": "success",
+        "message": f"Transfer request {transfer['transfer_id']} created successfully",
+        "transfer": transfer
+    }
+
+@app.get("/api/logistics/transfers")
+def list_logistics_transfers():
+    transfers = logistics_engine.get_all_transfers()
+    notifications = logistics_engine.get_all_notifications()
+    return {
+        "transfers": transfers,
+        "notifications": notifications
+    }
+
+@app.get("/api/logistics/transfers/{transfer_id}")
+def get_logistics_transfer(transfer_id: str):
+    transfer = logistics_engine.get_transfer_by_id(transfer_id)
+    if not transfer:
+        raise HTTPException(status_code=404, detail=f"Transfer '{transfer_id}' not found")
+    return transfer
+
+@app.patch("/api/logistics/transfers/{transfer_id}/status")
+def update_logistics_status(transfer_id: str, req: UpdateStatusRequest):
+    updated = logistics_engine.update_transfer_status(transfer_id, req.status, req.note)
+    if not updated:
+        raise HTTPException(status_code=404, detail=f"Transfer '{transfer_id}' not found")
+    return {
+        "status": "success",
+        "message": f"Transfer {transfer_id} updated to {updated['status']}",
+        "transfer": updated
+    }
+
+@app.post("/api/logistics/transfers/{transfer_id}/notify")
+def notify_warehouse(transfer_id: str, req: NotifyRequest):
+    transfer = logistics_engine.get_transfer_by_id(transfer_id)
+    if not transfer:
+        raise HTTPException(status_code=404, detail=f"Transfer '{transfer_id}' not found")
+    
+    notif = logistics_engine.add_notification(transfer_id, req.message)
+    return {
+        "status": "success",
+        "notification": notif
     }
 
 if __name__ == "__main__":
