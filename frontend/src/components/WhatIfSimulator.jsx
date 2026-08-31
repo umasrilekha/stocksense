@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 
-export default function WhatIfSimulator({ selectedSku, onSimulate, onReset }) {
+export default function WhatIfSimulator({ selectedSku, recommendation, onSimulate, onReset }) {
   const [sourceStock, setSourceStock] = useState(160);
   const [transferRate, setTransferRate] = useState(1.5);
   const [supplierLeadTime, setSupplierLeadTime] = useState(7);
   const [demandSurge, setDemandSurge] = useState(0);
+
+  const currentAction = recommendation?.recommended_action || 'MOVE';
+  const isSimulated = recommendation?.is_simulated || false;
 
   const handleApply = (e) => {
     e.preventDefault();
@@ -27,102 +30,134 @@ export default function WhatIfSimulator({ selectedSku, onSimulate, onReset }) {
   };
 
   return (
-    <div className="glass-panel rounded-2xl p-6 border border-slate-800 shadow-xl mb-8">
-      <div className="flex justify-between items-center mb-6">
+    <div className="panel">
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', borderBottom: '1px solid var(--border-color)', paddingBottom: '14px', marginBottom: '16px' }}>
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <span>🧪 Interactive What-If Simulator</span>
-            <span className="text-xs font-normal text-slate-400">Test supply chain scenario variations</span>
-          </h2>
-          <p className="text-xs text-slate-400">Adjust parameters to simulate how changing warehouse conditions alter the AI recommendation</p>
+          <h3 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '2px' }}>
+            What-If Scenario Simulator
+          </h3>
+          <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+            Simulate supply chain parameters to test decision sensitivity under operational changes.
+          </p>
         </div>
+
         <button
           onClick={handleResetClick}
           type="button"
-          className="text-xs text-slate-400 hover:text-white underline"
+          className="btn btn-secondary"
+          style={{ padding: '6px 12px', fontSize: '11px' }}
         >
           Reset Defaults
         </button>
       </div>
 
-      <form onSubmit={handleApply} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Source Stock Control */}
-        <div className="space-y-2">
-          <label className="text-xs font-bold text-slate-300 flex justify-between">
-            <span>Bangalore Stock (Units)</span>
-            <span className="text-indigo-400 font-mono">{sourceStock}</span>
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="300"
-            step="5"
-            value={sourceStock}
-            onChange={(e) => setSourceStock(e.target.value)}
-            className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-          />
-          <span className="text-[11px] text-slate-500 block">Simulate Bangalore stock exhaustion</span>
+      {/* BASELINE vs. SIMULATED Outcome Transition Header */}
+      <div style={{ backgroundColor: 'var(--bg-surface-alt)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '12px 16px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+        <div>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>BASELINE DECISION</span>
+          <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--accent-green)', fontFamily: 'JetBrains Mono' }}>
+            {isSimulated ? 'MOVE' : currentAction}
+          </div>
         </div>
 
-        {/* Transfer Cost Control */}
-        <div className="space-y-2">
-          <label className="text-xs font-bold text-slate-300 flex justify-between">
-            <span>Transfer Cost ($/unit)</span>
-            <span className="text-indigo-400 font-mono">${transferRate}</span>
-          </label>
-          <input
-            type="number"
-            step="0.5"
-            min="0.5"
-            max="25.0"
-            value={transferRate}
-            onChange={(e) => setTransferRate(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-700 text-white text-xs rounded-xl px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none font-mono"
-          />
-          <span className="text-[11px] text-slate-500 block">Inter-location freight surge rate</span>
+        {isSimulated && (
+          <>
+            <div style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 700 }}>
+              &rarr;
+            </div>
+            <div>
+              <span style={{ fontSize: '11px', color: 'var(--accent-ochre)', textTransform: 'uppercase', fontWeight: 700 }}>SIMULATED OUTCOME</span>
+              <div style={{ fontSize: '16px', fontWeight: 700, color: currentAction === 'BUY' ? 'var(--accent-blue)' : 'var(--accent-green)', fontFamily: 'JetBrains Mono' }}>
+                {currentAction}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Simulator Form Controls */}
+      <form onSubmit={handleApply}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '20px' }}>
+          {/* Control 1: Stock Availability */}
+          <div className="form-group">
+            <div className="form-label">
+              <span>Bangalore Available Stock</span>
+              <span style={{ color: 'var(--accent-terracotta)', fontFamily: 'JetBrains Mono' }}>{sourceStock} units</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="300"
+              step="5"
+              value={sourceStock}
+              onChange={(e) => setSourceStock(e.target.value)}
+              className="form-range"
+            />
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Set to 0 to simulate stock exhaustion</span>
+          </div>
+
+          {/* Control 2: Transfer Rate */}
+          <div className="form-group">
+            <div className="form-label">
+              <span>Freight Transfer Rate</span>
+              <span style={{ color: 'var(--accent-terracotta)', fontFamily: 'JetBrains Mono' }}>₹{transferRate}/unit</span>
+            </div>
+            <input
+              type="number"
+              step="0.5"
+              min="0.5"
+              max="25.0"
+              value={transferRate}
+              onChange={(e) => setTransferRate(e.target.value)}
+              className="form-input"
+            />
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Inter-warehouse shipping cost per unit</span>
+          </div>
+
+          {/* Control 3: Supplier Lead Time */}
+          <div className="form-group">
+            <div className="form-label">
+              <span>Supplier Lead Time</span>
+              <span style={{ color: 'var(--accent-terracotta)', fontFamily: 'JetBrains Mono' }}>{supplierLeadTime} days</span>
+            </div>
+            <input
+              type="number"
+              min="1"
+              max="30"
+              value={supplierLeadTime}
+              onChange={(e) => setSupplierLeadTime(e.target.value)}
+              className="form-input"
+            />
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Vendor purchasing lead time</span>
+          </div>
+
+          {/* Control 4: Demand Surge */}
+          <div className="form-group">
+            <div className="form-label">
+              <span>Demand Surge (%)</span>
+              <span style={{ color: 'var(--accent-terracotta)', fontFamily: 'JetBrains Mono' }}>+{demandSurge}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="10"
+              value={demandSurge}
+              onChange={(e) => setDemandSurge(e.target.value)}
+              className="form-range"
+            />
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Regional demand spike override</span>
+          </div>
         </div>
 
-        {/* Supplier Lead Time Control */}
-        <div className="space-y-2">
-          <label className="text-xs font-bold text-slate-300 flex justify-between">
-            <span>Supplier Lead Time (Days)</span>
-            <span className="text-indigo-400 font-mono">{supplierLeadTime}d</span>
-          </label>
-          <input
-            type="number"
-            min="1"
-            max="30"
-            value={supplierLeadTime}
-            onChange={(e) => setSupplierLeadTime(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-700 text-white text-xs rounded-xl px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none font-mono"
-          />
-          <span className="text-[11px] text-slate-500 block">Purchasing lead time delay</span>
-        </div>
-
-        {/* Demand Surge Control */}
-        <div className="space-y-2">
-          <label className="text-xs font-bold text-slate-300 flex justify-between">
-            <span>Demand Surge (%)</span>
-            <span className="text-indigo-400 font-mono">+{demandSurge}%</span>
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            step="10"
-            value={demandSurge}
-            onChange={(e) => setDemandSurge(e.target.value)}
-            className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-          />
-          <span className="text-[11px] text-slate-500 block">Regional demand spike simulation</span>
-        </div>
-
-        <div className="sm:col-span-2 lg:col-span-4 flex justify-end">
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <button
             type="submit"
-            className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm px-6 py-2.5 rounded-xl transition shadow-lg shadow-indigo-600/20"
+            className="btn btn-primary"
+            style={{ padding: '10px 20px' }}
           >
-            Run Dynamic Simulation ⚡
+            Run Simulation
           </button>
         </div>
       </form>

@@ -1,6 +1,11 @@
 import React from 'react';
 
-export default function RecommendationCard({ recommendation, onApproveClick }) {
+export default function RecommendationCard({
+  recommendation,
+  onApproveClick,
+  onCreateTransferClick,
+  onViewPurchaseIntelligenceClick
+}) {
   if (!recommendation) return null;
 
   const {
@@ -8,119 +13,209 @@ export default function RecommendationCard({ recommendation, onApproveClick }) {
     sku_name,
     recommended_action,
     explanation,
+    locations,
     target_location,
     source_location,
     shortage_quantity,
-    excess_quantity,
-    locations,
     is_simulated
   } = recommendation;
 
-  const actionColors = {
-    MOVE: 'from-emerald-600/30 to-teal-900/40 border-emerald-500/50 text-emerald-400',
-    BUY: 'from-blue-600/30 to-indigo-900/40 border-blue-500/50 text-blue-400',
-    WAIT: 'from-amber-600/30 to-orange-900/40 border-amber-500/50 text-amber-400',
-    HOLD: 'from-slate-600/30 to-slate-900/40 border-slate-500/50 text-slate-400'
+  const getActionStyle = (action) => {
+    switch (action) {
+      case 'MOVE':
+        return { color: 'var(--accent-green)', bg: 'var(--accent-green-bg)', border: '1px solid var(--accent-green)' };
+      case 'BUY':
+        return { color: 'var(--accent-blue)', bg: 'var(--accent-blue-bg)', border: '1px solid var(--accent-blue)' };
+      case 'WAIT':
+        return { color: 'var(--accent-ochre)', bg: 'var(--accent-ochre-bg)', border: '1px solid var(--accent-ochre)' };
+      default:
+        return { color: 'var(--text-muted)', bg: 'var(--bg-surface-alt)', border: '1px solid var(--border-color)' };
+    }
   };
 
-  const badgeBg = actionColors[recommended_action] || actionColors.MOVE;
+  const actionStyle = getActionStyle(recommended_action);
 
   return (
-    <div className="glass-panel rounded-2xl p-6 border border-slate-800 shadow-2xl mb-8 relative overflow-hidden">
+    <div className="panel" style={{ position: 'relative', overflow: 'hidden' }}>
       {/* Simulation Banner tag if active */}
       {is_simulated && (
-        <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-bold text-xs px-4 py-1 text-center -mx-6 -mt-6 mb-6 tracking-wide uppercase">
-          ⚡ Live Simulation Active - Dynamic Recommendation Recalculated
+        <div style={{
+          backgroundColor: 'var(--accent-ochre)',
+          color: '#FFFDF8',
+          fontWeight: 700,
+          fontSize: '11px',
+          padding: '6px 12px',
+          textAlign: 'center',
+          letterSpacing: '0.5px',
+          textTransform: 'uppercase',
+          margin: '-20px -20px 16px -20px'
+        }}>
+          Simulation Active — Dynamic Recommendation Recalculated
         </div>
       )}
 
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-6 pb-6 border-b border-slate-800">
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px', marginBottom: '16px' }}>
         <div>
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-xs font-mono px-2.5 py-1 rounded bg-slate-800 text-slate-300 font-semibold border border-slate-700">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <span className="badge" style={{ backgroundColor: 'var(--bg-surface-alt)', color: 'var(--accent-terracotta)', border: '1px solid var(--border-color)' }}>
               {sku_id}
             </span>
-            <h2 className="text-xl font-extrabold text-white">{sku_name}</h2>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>{sku_name}</h3>
           </div>
-          <p className="text-sm text-slate-400">Decision Intelligence Engine Evaluation</p>
+          <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Inventory Decision Engine Evaluation</p>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className={`px-5 py-2.5 rounded-xl border bg-gradient-to-br ${badgeBg} shadow-lg flex items-center gap-3`}>
-            <span className="text-xs uppercase font-extrabold tracking-wider text-slate-300">Recommended Action:</span>
-            <span className="text-2xl font-black tracking-tight">{recommended_action}</span>
-          </div>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {recommended_action === 'MOVE' && onCreateTransferClick && (
+            <button
+              type="button"
+              onClick={() => onCreateTransferClick({
+                sku_id,
+                sku_name,
+                source_location: source_location || 'Bangalore',
+                target_location: target_location || 'Chennai',
+                quantity: shortage_quantity || 80
+              })}
+              className="btn btn-primary"
+              style={{ padding: '10px 18px' }}
+            >
+              Create Transfer &rarr;
+            </button>
+          )}
+
+          {recommended_action === 'BUY' && onViewPurchaseIntelligenceClick && (
+            <button
+              type="button"
+              onClick={() => onViewPurchaseIntelligenceClick(sku_id)}
+              className="btn btn-primary"
+              style={{ padding: '10px 18px', backgroundColor: 'var(--accent-blue)', borderColor: 'var(--accent-blue)' }}
+            >
+              View Purchase Intelligence &rarr;
+            </button>
+          )}
 
           <button
+            type="button"
             onClick={onApproveClick}
-            className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm px-5 py-3 rounded-xl transition shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98]"
+            className="btn btn-success"
+            style={{ padding: '10px 18px' }}
           >
-            Approve {recommended_action} Action &rarr;
+            Approve {recommended_action} Action
           </button>
         </div>
       </div>
 
-      {/* Decision Explanation Box */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-5 mb-6">
-        <div className="flex items-start gap-3">
-          <div className="text-indigo-400 text-xl">💡</div>
-          <div>
-            <h3 className="text-sm font-bold text-slate-200 mb-1">Decision AI Explanation</h3>
-            <p className="text-sm text-slate-300 leading-relaxed">{explanation}</p>
+      {/* Visual Imbalance Transfer Banner */}
+      {source_location && target_location && (
+        <div className="transfer-arrow-banner">
+          {source_location.toUpperCase()} &mdash;&mdash;&mdash; {recommended_action} {shortage_quantity || 65} UNITS &mdash;&mdash;&mdash;&gt; {target_location.toUpperCase()}
+        </div>
+      )}
+
+      {/* Prominent Recommendation Card Box */}
+      <div style={{
+        backgroundColor: actionStyle.bg,
+        border: actionStyle.border,
+        borderRadius: '6px',
+        padding: '16px',
+        marginBottom: '20px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '12px'
+      }}>
+        <div>
+          <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>
+            RECOMMENDED ACTION
+          </div>
+          <div style={{ fontSize: '24px', fontWeight: 700, color: actionStyle.color, letterSpacing: '-0.5px', fontFamily: 'JetBrains Mono, monospace', marginTop: '2px' }}>
+            {recommended_action} {shortage_quantity ? `${shortage_quantity} UNITS` : ''}
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+            {source_location && target_location ? `${source_location} → ${target_location}` : 'Evaluated optimal action'}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {recommended_action === 'MOVE' && onCreateTransferClick && (
+            <button
+              type="button"
+              className="btn btn-success"
+              style={{ fontSize: '12px', padding: '6px 14px' }}
+              onClick={() => onCreateTransferClick({
+                sku_id,
+                sku_name,
+                source_location: source_location || 'Bangalore',
+                target_location: target_location || 'Chennai',
+                quantity: shortage_quantity || 80
+              })}
+            >
+              Create Transfer
+            </button>
+          )}
+
+          {recommended_action === 'BUY' && onViewPurchaseIntelligenceClick && (
+            <button
+              type="button"
+              className="btn btn-primary"
+              style={{ fontSize: '12px', padding: '6px 14px', backgroundColor: 'var(--accent-blue)', borderColor: 'var(--accent-blue)' }}
+              onClick={() => onViewPurchaseIntelligenceClick(sku_id)}
+            >
+              View Purchase Intelligence
+            </button>
+          )}
+
+          <div className="badge badge-move" style={{ padding: '6px 14px', fontSize: '11px' }}>
+            RECOMMENDED
           </div>
         </div>
       </div>
 
-      {/* Multi-location Stock Breakdown */}
-      <div>
-        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Multi-Location Inventory Status</h4>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {locations.map((loc, idx) => {
-            const isShortage = loc.status === 'SHORTAGE';
-            const isExcess = loc.status === 'EXCESS';
 
-            return (
-              <div
-                key={idx}
-                className={`p-4 rounded-xl border transition ${
-                  isShortage
-                    ? 'bg-rose-950/20 border-rose-800/40 text-rose-300'
-                    : isExcess
-                    ? 'bg-emerald-950/20 border-emerald-800/40 text-emerald-300'
-                    : 'bg-slate-900/40 border-slate-800 text-slate-300'
-                }`}
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-bold text-sm text-white">{loc.city} Warehouse</span>
-                  <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded ${
-                    isShortage ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' :
-                    isExcess ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
-                    'bg-slate-800 text-slate-400'
-                  }`}>
-                    {loc.status}
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div>
-                    <span className="text-slate-400 block">Current Stock</span>
-                    <span className="text-base font-bold text-white">{loc.current_stock}</span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block">14D Demand</span>
-                    <span className="text-base font-bold text-white">{loc.forecast_14d_demand}</span>
-                  </div>
-                </div>
-                <div className="mt-3 pt-2 border-t border-slate-800/60 flex justify-between text-xs font-mono">
-                  <span>Net Balance:</span>
-                  <span className={`font-bold ${loc.net_balance < 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
-                    {loc.net_balance > 0 ? `+${loc.net_balance}` : loc.net_balance} units
-                  </span>
-                </div>
-              </div>
-            );
-          })}
+      {/* Decision Reasoning Box */}
+      <div style={{ backgroundColor: 'var(--bg-surface-alt)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '14px', marginBottom: '20px' }}>
+        <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '4px' }}>
+          Decision Reasoning
         </div>
+        <p style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.5 }}>
+          {explanation}
+        </p>
       </div>
+
+      {/* Multi-Location Inventory Breakdown Grid */}
+      {locations && locations.length > 0 && (
+        <div>
+          <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-muted)', marginBottom: '10px' }}>
+            Multi-Location Warehouse Network Status
+          </div>
+          <div className="location-nodes-grid">
+            {locations.map((loc, idx) => {
+              const isShortage = loc.status === 'SHORTAGE';
+              const isExcess = loc.status === 'EXCESS';
+
+              return (
+                <div key={idx} className={`location-node ${isShortage ? 'shortage' : isExcess ? 'excess' : ''}`}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <strong style={{ fontSize: '13px', color: 'var(--text-primary)' }}>{loc.city}</strong>
+                    <span className={`badge ${isShortage ? 'badge-high' : isExcess ? 'badge-low' : 'badge-medium'}`}>
+                      {loc.status}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono' }}>
+                    <span>Stock: {loc.current_stock}</span>
+                    <span>14D Demand: {loc.forecast_14d_demand}</span>
+                  </div>
+                  <div style={{ marginTop: '6px', fontSize: '12px', fontWeight: 700, fontFamily: 'JetBrains Mono', color: loc.net_balance < 0 ? 'var(--accent-brick)' : 'var(--accent-green)' }}>
+                    Net Balance: {loc.net_balance > 0 ? `+${loc.net_balance}` : loc.net_balance}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

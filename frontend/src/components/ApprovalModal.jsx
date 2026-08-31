@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 export default function ApprovalModal({ isOpen, onClose, recommendation, onConfirm }) {
-  const [approverName, setApproverName] = useState('Inventory Manager (Demo)');
+  const [approverName, setApproverName] = useState('Inventory Manager');
   const [notes, setNotes] = useState('Approved optimal inter-warehouse transfer action to eliminate stockout risk.');
 
   if (!isOpen || !recommendation) return null;
@@ -17,70 +17,108 @@ export default function ApprovalModal({ isOpen, onClose, recommendation, onConfi
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
-      <div className="glass-panel w-full max-w-lg rounded-2xl p-6 border border-slate-700 shadow-2xl relative">
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      zIndex: 100,
+      backgroundColor: 'rgba(42, 30, 23, 0.75)',
+      backdropFilter: 'blur(4px)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '16px'
+    }}>
+      <div className="card" style={{ width: '100%', maxWidth: '520px', position: 'relative', backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-color)' }}>
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold"
+          type="button"
+          style={{
+            position: 'absolute',
+            top: '16px',
+            right: '16px',
+            background: 'none',
+            border: 'none',
+            color: 'var(--text-muted)',
+            fontSize: '20px',
+            cursor: 'pointer'
+          }}
         >
           &times;
         </button>
 
-        <div className="flex items-center gap-3 mb-4">
-          <div className="h-10 w-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl font-bold border border-emerald-500/30">
-            ✓
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+          <div style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '4px',
+            backgroundColor: 'var(--accent-green-bg)',
+            border: '1px solid var(--accent-green)',
+            color: 'var(--accent-green)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 700,
+            fontSize: '14px'
+          }}>
+            GO
           </div>
           <div>
-            <h3 className="text-lg font-extrabold text-white">Approve Action Workflow</h3>
-            <p className="text-xs text-slate-400">Human-in-the-Loop Decision Sign-off</p>
+            <h3 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--text-primary)' }}>Approve Action Workflow</h3>
+            <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Human-in-the-Loop Operational Sign-off</p>
           </div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 mb-6">
-          <div className="text-xs text-slate-400 mb-1">Target Action</div>
-          <div className="text-base font-bold text-emerald-400 mb-2">
-            {recommendation.recommended_action}: {recommendation.source_location} &rarr; {recommendation.target_location} ({recommendation.shortage_quantity} units)
+        <div style={{ backgroundColor: 'var(--bg-surface-alt)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '14px', marginBottom: '20px' }}>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '2px', textTransform: 'uppercase', fontWeight: 700 }}>
+            Target Action
           </div>
-          <div className="text-xs text-slate-300">
+          <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--accent-green)', marginBottom: '4px' }}>
+            {recommendation.recommended_action}: {recommendation.source_location || 'Bangalore'} &rarr; {recommendation.target_location || 'Chennai'} ({recommendation.shortage_quantity || 80} units)
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
             {recommendation.sku_id} - {recommendation.sku_name}
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="text-xs font-bold text-slate-300 block mb-1">Approver Name / Role</label>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="form-group">
+            <label className="form-label">Approver Name / Role</label>
             <input
               type="text"
               value={approverName}
               onChange={(e) => setApproverName(e.target.value)}
               required
-              className="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              className="form-input"
             />
           </div>
 
-          <div>
-            <label className="text-xs font-bold text-slate-300 block mb-1">Approval Notes</label>
+          <div className="form-group">
+            <label className="form-label">Approval Notes</label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows="3"
-              className="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none resize-none"
+              className="form-input"
+              style={{ resize: 'none' }}
             ></textarea>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white"
+              className="btn btn-secondary"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm px-6 py-2.5 rounded-xl transition shadow-lg shadow-emerald-500/20"
+              className="btn btn-success"
             >
-              Confirm Approval ✓
+              Confirm Approval
             </button>
           </div>
         </form>

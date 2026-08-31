@@ -3,94 +3,141 @@ import React from 'react';
 export default function ComparisonMatrix({ comparison, recommendedAction }) {
   if (!comparison || comparison.length === 0) return null;
 
+  const formatCurrencyINR = (val) => {
+    if (val === undefined || val === null || isNaN(val)) return '₹0';
+    const num = Number(val);
+    return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: num % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 })}`;
+  };
+
+  const getActionBadgeClass = (action) => {
+    switch (action) {
+      case 'MOVE':
+        return 'badge-move';
+      case 'BUY':
+        return 'badge-buy';
+      case 'WAIT':
+        return 'badge-wait';
+      case 'HOLD':
+      default:
+        return 'badge-hold';
+    }
+  };
+
+  const getRiskBadgeClass = (risk) => {
+    const r = (risk || 'MEDIUM').toUpperCase();
+    if (r === 'LOW') return 'badge-low';
+    if (r === 'HIGH') return 'badge-high';
+    return 'badge-medium';
+  };
+
   return (
-    <div className="glass-panel rounded-2xl p-6 border border-slate-800 shadow-xl mb-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6">
-        <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <span>📊 Action Comparison Matrix</span>
-            <span className="text-xs font-normal text-slate-400">Comparing BUY / MOVE / WAIT / HOLD</span>
-          </h2>
-          <p className="text-xs text-slate-400">Quantitative evaluation of cost, lead time, and stockout risk mitigation</p>
-        </div>
+    <div className="panel" style={{ padding: '20px' }}>
+      <div style={{ marginBottom: '16px' }}>
+        <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.2px' }}>
+          Action Comparison Matrix
+        </h3>
+        <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
+          Quantitative evaluation of cost, lead time, and stockout risk mitigation across all four inventory decisions.
+        </p>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm text-slate-300">
-          <thead className="bg-slate-900/80 text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800">
+      <div style={{ overflowX: 'auto', width: '100%' }}>
+        <table
+          className="data-table"
+          style={{
+            width: '100%',
+            tableLayout: 'fixed',
+            borderCollapse: 'collapse',
+            fontSize: '13px'
+          }}
+        >
+          <colgroup>
+            <col style={{ width: '100px' }} />
+            <col style={{ width: 'auto' }} />
+            <col style={{ width: '110px' }} />
+            <col style={{ width: '120px' }} />
+            <col style={{ width: '110px' }} />
+            <col style={{ width: '100px' }} />
+            <col style={{ width: '140px' }} />
+          </colgroup>
+          <thead>
             <tr>
-              <th className="py-3.5 px-4">Action</th>
-              <th className="py-3.5 px-4">Description</th>
-              <th className="py-3.5 px-4">Transfer / Order Qty</th>
-              <th className="py-3.5 px-4">Est. Total Cost ($)</th>
-              <th className="py-3.5 px-4">Lead Time</th>
-              <th className="py-3.5 px-4">Risk Level</th>
-              <th className="py-3.5 px-4 text-right">Status</th>
+              <th style={{ textAlign: 'left', padding: '10px 12px' }}>ACTION</th>
+              <th style={{ textAlign: 'left', padding: '10px 12px' }}>DESCRIPTION</th>
+              <th style={{ textAlign: 'left', padding: '10px 12px' }}>QUANTITY</th>
+              <th style={{ textAlign: 'left', padding: '10px 12px' }}>COST</th>
+              <th style={{ textAlign: 'left', padding: '10px 12px' }}>LEAD TIME</th>
+              <th style={{ textAlign: 'left', padding: '10px 12px' }}>RISK</th>
+              <th style={{ textAlign: 'left', padding: '10px 12px' }}>EVALUATION</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60 font-sans">
+          <tbody>
             {comparison.map((item, idx) => {
               const isRecommended = item.action === recommendedAction;
-
-              const badgeStyles = {
-                MOVE: 'badge-move',
-                BUY: 'badge-buy',
-                WAIT: 'badge-wait',
-                HOLD: 'badge-hold'
-              };
-
-              const riskStyles = {
-                LOW: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-                MEDIUM: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
-                HIGH: 'bg-rose-500/10 text-rose-400 border-rose-500/30'
-              };
 
               return (
                 <tr
                   key={idx}
-                  className={`transition ${
-                    isRecommended
-                      ? 'bg-indigo-950/40 border-l-4 border-l-emerald-400 font-semibold'
-                      : 'hover:bg-slate-900/40'
-                  }`}
+                  style={{
+                    backgroundColor: isRecommended ? 'var(--accent-green-bg)' : 'transparent',
+                    borderLeft: isRecommended ? '3px solid var(--accent-green)' : '3px solid transparent',
+                    borderBottom: '1px solid var(--border-subtle)',
+                    verticalAlign: 'middle'
+                  }}
                 >
-                  <td className="py-4 px-4 whitespace-nowrap">
-                    <div className="flex items-center gap-2">
-                      <span className={`px-3 py-1 rounded-lg text-xs font-mono font-extrabold uppercase ${badgeStyles[item.action]}`}>
-                        {item.action}
-                      </span>
-                      {isRecommended && (
-                        <span className="text-[10px] bg-emerald-500 text-slate-950 font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
-                          Recommended
-                        </span>
-                      )}
+                  {/* Action Badge */}
+                  <td style={{ padding: '12px' }}>
+                    <span className={`badge ${getActionBadgeClass(item.action)}`}>
+                      {item.action}
+                    </span>
+                  </td>
+
+                  {/* Title & Details */}
+                  <td style={{ padding: '12px' }}>
+                    <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '13px', lineHeight: '1.3' }}>
+                      {item.title}
                     </div>
+                    {item.details && (
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px', lineHeight: '1.3' }}>
+                        {item.details}
+                      </div>
+                    )}
                   </td>
-                  <td className="py-4 px-4">
-                    <div className="font-medium text-slate-200">{item.title}</div>
-                    <div className="text-xs text-slate-400 mt-0.5">{item.details}</div>
-                  </td>
-                  <td className="py-4 px-4 font-mono text-slate-100 font-bold">
+
+                  {/* Quantity */}
+                  <td style={{ padding: '12px', fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-primary)' }}>
                     {item.quantity > 0 ? `${item.quantity} units` : '-'}
                   </td>
-                  <td className="py-4 px-4 font-mono font-extrabold text-white text-base">
-                    ${item.cost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+
+                  {/* Cost */}
+                  <td style={{ padding: '12px', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, color: 'var(--text-primary)' }}>
+                    {formatCurrencyINR(item.cost)}
                   </td>
-                  <td className="py-4 px-4 font-mono text-slate-300">
-                    {item.lead_time_days} days
+
+                  {/* Lead Time */}
+                  <td style={{ padding: '12px', fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-muted)' }}>
+                    {item.lead_time_days} {item.lead_time_days === 1 ? 'day' : 'days'}
                   </td>
-                  <td className="py-4 px-4">
-                    <span className={`px-2 py-0.5 rounded text-[11px] font-mono border ${riskStyles[item.risk_level] || riskStyles.MEDIUM}`}>
+
+                  {/* Risk Level */}
+                  <td style={{ padding: '12px' }}>
+                    <span className={`badge ${getRiskBadgeClass(item.risk_level)}`}>
                       {item.risk_level}
                     </span>
                   </td>
-                  <td className="py-4 px-4 text-right">
+
+                  {/* Dedicated Status Column */}
+                  <td style={{ padding: '12px' }}>
                     {isRecommended ? (
-                      <span className="text-xs text-emerald-400 font-extrabold flex items-center justify-end gap-1">
-                        <span>✓ Best Choice</span>
+                      <span
+                        className="badge badge-move"
+                      >
+                        BEST CHOICE
                       </span>
                     ) : (
-                      <span className="text-xs text-slate-500">Alternative</span>
+                      <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                        Alternative
+                      </span>
                     )}
                   </td>
                 </tr>
